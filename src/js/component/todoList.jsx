@@ -1,26 +1,29 @@
 import React, { useState } from "react";
-import { TiDeleteOutline } from "react-icons/ti";
-const TodoList = ({ list, deleteItem }) => {
-    //const [deleteIconShow, setDeleteIconShow] = useState(false);
-    // onMouseEnter={setDeleteIconShow(true)}
-    // onMouseLeave={setDeleteIconShow(false)} 
-    // style={{ display: deleteIconShow ? `block` : `none` }}
+const TodoList = ({ index, toDo, deleteItem }) => {
+    const [deleteIconShow, setDeleteIconShow] = useState(`hidden`);
+    const mouseEnterHandler = (e) => {
+        setDeleteIconShow(`visible`)
+        console.log(e.target)
+        console.log(`paso a: ${deleteIconShow}`)
+    }
+    const mouseLeaveHandler = () => {
+        setDeleteIconShow(`hidden`)
+    }
+    const xd = () => {
+        deleteItem(index);
+        console.log()
+    }
     return (
-        <ul className="list-group">
-            {list.map((toDo, index) => (
-                <li key={index} className="list-group-item">
-                    <div className="container d-flex justify-content-between align-items-center">
-                        {toDo}
-                        <i className="fa-solid fa-circle zzz" onClick={(_) => {
-                            deleteItem(index)
-                        }}></i>
-                        
-                        {/* <TiDeleteOutline className="fs-4 zzz"                            
-                        /> */}
-                    </div>
-                </li>
-            ))}
-        </ul>
+        <li className="list-group-item" onMouseEnter={mouseEnterHandler}
+            onMouseLeave={mouseLeaveHandler}>
+            <div className="container d-flex justify-content-between align-items-center">
+                {toDo}
+                <i className="fa-solid fa-trash"
+                    style={{ visibility: deleteIconShow }}
+                    onClick={xd}
+                ></i>
+            </div>
+        </li>
     )
 }
 export default TodoList;
