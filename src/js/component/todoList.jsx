@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 const TodoList = ({ index, toDo, deleteItem }) => {
+    console.log(`toDo Here is : ${toDo}`);
     const [deleteIconShow, setDeleteIconShow] = useState(`hidden`);
     const mouseEnterHandler = (e) => {
         setDeleteIconShow(`visible`)
-        console.log(e.target)
-        console.log(`paso a: ${deleteIconShow}`)
     }
     const mouseLeaveHandler = () => {
         setDeleteIconShow(`hidden`)
     }
     const xd = () => {
         deleteItem(index);
-        console.log()
     }
     return (
         <li className="list-group-item" onMouseEnter={mouseEnterHandler}
