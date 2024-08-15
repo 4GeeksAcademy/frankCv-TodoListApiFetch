@@ -1,4 +1,5 @@
 import TodoList from "./todoList.jsx"
+import ButtonClear from "./buttonClear.jsx"
 import React, { useState, useEffect } from "react";
 //create your first component
 const Home = () => {
@@ -7,51 +8,47 @@ const Home = () => {
 	const deleteItem = (deletedTask) => {
 		console.log(list);
 		console.log(`deleted task` + deletedTask)
-		setList([...(list.filter((_, index) => index !== deletedTask))]);
+		// setList([...(list.filter((_, index) => index !== deletedTask))]);	
+		deleteTask(deletedTask);
+		setList([...(list.filter((e) => e.id !== deletedTask))]);
 	}
 	const handleSubmit = (e) => {
 		e.preventDefault();
 	}
 	const handleEnter = (e) => {
 		if (e.key === "Enter") {
-			if (e.target.value !== ``) {
-				//setList([...list, e.target.value]);
-				//setTask(e.target.value);
+			if (task !== ``) {
+				setList([...list, task]);
 				createTask();
 				e.target.value = ``;
+				getTask();
 			} else {
 				alert(`debe colocar algo en value`);
 			}
 		}
 	}
-	const listHandler = () => {
-		// 		const arr = Object.keys(list).forEach(function(key, index) {
-		// 	myObject[key] *= 2;
-		//   });
-		console.log(`list from listHandler ${list}`);
-		const li = list.map((toDo, index) =>
-			<TodoList key={index} index={index} toDo={toDo.label} deleteItem={deleteItem} />
-		)
-		return li
-	}
 	useEffect(() => {
 		getTask();
-		//createTask();
 	}, [])
 	function getTask() {
-		const URL = 'https://playground.4geeks.com/todo/users/frankCv';
+		const URL = 'https://playground.4geeks.com/todo/users/frankCV';
 		fetch(
 			URL, { method: "GET" }
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.todos)
-				setList(data.todos)
+				if (data.status !== 200) {
+					console.log(data.todos)
+					setList(data.todos)
+				}
+				else {
+					console.log(`:( no existe el usuario)`)
+				}
 			})
 			.catch((error) => console.log(error))
 	}
 	function createTask() {
-		const URL = 'https://playground.4geeks.com/todo/todos/frankCv';
+		const URL = 'https://playground.4geeks.com/todo/todos/frankCV';
 		fetch(URL, {
 			method: "POST",
 			headers: {
@@ -65,48 +62,62 @@ const Home = () => {
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				if (data.id) {
+				if (data.status === 201) {
+					// if (data.id) {
 					alert(`succesful add`)
 					setList([...list, data])
+					// }
 				}
 			})
 			.catch((error) => console.log(error))
 	}
-	function updateTask() {
-		const URL = 'https://playground.4geeks.com/todo/docs#/';
+	function updateTask(id) {
+		const URL = `https://playground.4geeks.com/todo/todos/${id}`;
 		fetch(URL, {
-			method: "GET",
+			method: "PUT",
 			headers: {
 				"content-type": "text/javascript"
 			},
 			body: JSON.stringify({
-
+				"label": "string",
+				"is_done": true
 			})
-		}
-		)
+		})
 	}
-	function deleteTask() {
-		const URL = 'https://playground.4geeks.com/todo/docs#/';
+	function deleteTask(id) {
+		const URL = `https://playground.4geeks.com/todo/todos/${id}`;
 		fetch(URL, {
-			method: "GET",
-			headers: {
-				"content-type": "text/javascript"
-			},
-			body: JSON.stringify({
-				
-			})
+			method: "DELETE"
 		}
 		)
+			.then((response) => {
+				if (response.status === 204) {
+					// alert(`eliminado satisfactoriamente`)
+					console.log(`deleted ${id}`)
+				}
+			})
 	}
-
+	function deleteAllTask() {
+		list.map((task) => {
+			console.log(`you're deleting task ${task.label} which id is: ${task.id}`)
+			deleteItem(task.id)
+			getTask()
+		})
+	}
+	console.log(list)
 	return (
 		<form className="form-floating mt-5 shadow-lg" style={{ width: `70%`, margin: `auto` }} onSubmit={handleSubmit}>
 			<input type="text" className="form-control border-start border-end" id="floatingInput"
-				placeholder="What need's to be done?" style={{ height: `60px`, borderRadius: `0px` }} onKeyDown={handleEnter} onChange={(e) => { setTask(e.target.value) }} />
+				placeholder="What need's to be done?" style={{ height: `60px`, borderRadius: `0px` }} onKeyDown={handleEnter} onChange={(e) => setTask(e.target.value)} />
 			<ul className="list-group">
-				{listHandler()}
+				{
+					list.map((toDo, index) =>
+						<TodoList key={index} index={toDo.id} toDo={toDo.label} deleteItem={deleteItem} />
+					)
+				}
 			</ul>
 			<i className="fa-regular fa-trash-can"></i>
+			<ButtonClear user="frankCV" deleteAllTask={deleteAllTask}></ButtonClear>
 		</form>
 	);
 };
