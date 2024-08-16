@@ -4,10 +4,9 @@ import React, { useState, useEffect } from "react";
 //create your first component
 const Home = () => {
 	const [list, setList] = useState([]);
-	const [task, setTask] = useState(``);
+	const [task, setTask] = useState([]);
 	const deleteItem = (deletedTask) => {
-		console.log(list);
-		console.log(`deleted task` + deletedTask)
+		//console.log(`deleted task` + deletedTask)
 		// setList([...(list.filter((_, index) => index !== deletedTask))]);	
 		deleteTask(deletedTask);
 		setList([...(list.filter((e) => e.id !== deletedTask))]);
@@ -17,20 +16,21 @@ const Home = () => {
 	}
 	const handleEnter = (e) => {
 		if (e.key === "Enter") {
-			if (task !== ``) {
-				setList([...list, task]);
+			if (e.target.value !== ``) {
 				createTask();
+				console.log(list);
 				e.target.value = ``;
-				getTask();
+				getAllTasks();
 			} else {
+				getAllTasks();
 				alert(`debe colocar algo en value`);
 			}
 		}
 	}
 	useEffect(() => {
-		getTask();
+		getAllTasks();
 	}, [])
-	function getTask() {
+	function getAllTasks() {
 		const URL = 'https://playground.4geeks.com/todo/users/frankCV';
 		fetch(
 			URL, { method: "GET" }
@@ -47,6 +47,31 @@ const Home = () => {
 			})
 			.catch((error) => console.log(error))
 	}
+	// function createTask() {
+	// 	const URL = 'https://playground.4geeks.com/todo/todos/frankCV';
+	// 	fetch(URL, {
+	// 		method: "POST",
+	// 		headers: {
+	// 			"Content-Type": "application/json"
+	// 		},
+	// 		body: JSON.stringify({
+	// 			"label": `${task}`,
+	// 			"is_done": false
+	// 		})
+	// 	}
+	// 	)
+	// 		.then((response) => response.json())
+	// 		.then((data) => {
+	// 			if (data.status === 201 ) {
+	// 				// if (data.id) {
+	// 				alert(`succesful add`)
+	// 				setList([...list, data])
+	// 				// }
+	// 			}
+	// 		})
+	// 		.catch((error) => console.log(error))
+	// }
+
 	function createTask() {
 		const URL = 'https://playground.4geeks.com/todo/todos/frankCV';
 		fetch(URL, {
@@ -62,15 +87,17 @@ const Home = () => {
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				if (data.status === 201) {
-					// if (data.id) {
-					alert(`succesful add`)
-					setList([...list, data])
-					// }
+				if (data.status === 201 || data.id) {
+					// alert('Task added successfully');
+					setList([...list, data]);  // Agrega la tarea recién creada al estado
+					setTask('');  // Limpia el campo de entrada
+				} else {
+					alert('Failed to add task');
 				}
 			})
 			.catch((error) => console.log(error))
 	}
+
 	function updateTask(id) {
 		const URL = `https://playground.4geeks.com/todo/todos/${id}`;
 		fetch(URL, {
@@ -90,19 +117,22 @@ const Home = () => {
 			method: "DELETE"
 		}
 		)
-			.then((response) => {
-				if (response.status === 204) {
+		.then((response) => {
+			if (response.status === 204) {
 					// alert(`eliminado satisfactoriamente`)
-					console.log(`deleted ${id}`)
-				}
-			})
+				console.log(`deleted ${id}`)
+			}
+			else {
+				console.log(`el ${id} seleccionado no se encontro y codigo de respuesta es: ${response.status}`)
+			}
+		})
 	}
 	function deleteAllTask() {
 		list.map((task) => {
 			console.log(`you're deleting task ${task.label} which id is: ${task.id}`)
 			deleteItem(task.id)
-			getTask()
 		})
+		getAllTasks()
 	}
 	console.log(list)
 	return (
